@@ -29,5 +29,7 @@ func (r *Registry) Snapshot(key string) *Member {
 	if value == nil {
 		return nil
 	}
-	return value
+	// 返回内部状态的拷贝，避免后续 Put 原地更新波及调用方已持有的快照
+	cp := *value
+	return &cp
 }
