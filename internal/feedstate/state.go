@@ -7,11 +7,15 @@ type Policy interface {
 type MapPolicy struct{ rules map[string]bool }
 
 func (p *MapPolicy) Allow(value string) bool { return p != nil && p.rules[value] }
-func (p *MapPolicy) Add(value string)        { p.rules[value] = true }
+func (p *MapPolicy) Add(value string) {
+	if p == nil || p.rules == nil {
+		return
+	}
+	p.rules[value] = true
+}
 func LoadPolicy(enabled bool) Policy {
 	if !enabled {
-		var policy *MapPolicy
-		return policy
+		return nil
 	}
-	return &MapPolicy{}
+	return &MapPolicy{rules: make(map[string]bool)}
 }
