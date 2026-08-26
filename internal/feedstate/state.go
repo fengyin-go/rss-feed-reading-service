@@ -14,11 +14,13 @@ func NewSink() *Sink { return &Sink{calls: map[string]int{}, effects: map[string
 func (s *Sink) Deliver(operation, mode string) error {
 	s.calls[mode]++
 	if mode == "temporary" && s.calls[mode] == 1 {
-		s.effects[operation] = true
-		return errors.New(ErrTemporary.Error())
+		// First attempt in temporary mode fails transiently; the effect is
+		// only recorded once a later, successful attempt lands.
+		return ErrTemporary
 	}
 	if mode == "rejected" {
-		return errors.New(ErrTemporary.Error())
+		// A rejection is a permanent failure, not a transient one.
+		return ErrRejected
 	}
 	s.effects[operation] = true
 	return nil
