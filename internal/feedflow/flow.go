@@ -9,6 +9,10 @@ type Service struct {
 }
 
 func (s *Service) Commit(value string) error {
+	// 先保存结论；保存失败时不得发送成功提醒，并向上返回原始失败。
+	if err := s.Store.Save(value); err != nil {
+		return err
+	}
 	s.Publisher.Events = append(s.Publisher.Events, value)
-	return s.Store.Save(value)
+	return nil
 }
